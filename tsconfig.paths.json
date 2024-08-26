@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
     "paths": {
-      "@utils/*": ["src/utils/*"],
-      "@server/*": ["src/server/*"],
-      "@db/*": ["src/db/*"],
-      "@modules/*": ["src/modules/*"],
-      "@itypes/*": ["src/@types/*"],
-      "@config": ["src/config/index.ts"],
-      "@exceptions/*": ["src/exceptions/*"]
+      "@common/*": ["./src/common/*"],
+      "@server/*": ["./src/server/*"],
+      "@config": ["./src/config/index.ts"],
+      "@utils/*": ["./src/utils/*"]
     }
   }
 }

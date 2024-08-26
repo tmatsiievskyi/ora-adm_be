@@ -44,6 +44,7 @@ export class HttpServer {
         this.container.formatter.formatResp(data, Date.now() - startTime),
       );
     } catch (error) {
+      this.container.logger.error(error, 'Request Handler');
       if (error instanceof HttpException) {
         res.end(this.container.formatter.formatResp(error, 0, error.message));
       } else {
@@ -78,26 +79,32 @@ export class HttpServer {
   private listenHttpServer(): Promise<void> {
     return new Promise((res) => {
       process.on('unhandledRejection', (reason) => {
-        console.log('unhandledRejection', reason);
+        this.container.logger.error(reason, 'unhandledRejection');
       });
 
       process.on('rejectionHandled', (reason) => {
-        console.log('rejectionHandled', reason);
+        this.container.logger.error(reason, 'rejectionHandled');
       });
 
       process.on('multipleResolves', (type, promise, reason) => {
-        console.log('MultipleResolves', {
-          error: { type, promise, reason },
-        });
+        this.container.logger.error(
+          {
+            error: { type, promise, reason },
+          },
+          'MultipleResolves',
+        );
       });
 
       process.on('uncaughtException', (error) => {
-        console.log('uncaughtException', error);
+        this.container.logger.error(error, 'uncaughtException');
         process.exit(1);
       });
 
       return this.server.listen(this.config.server.port, () => {
-        console.log(`The server is running on ${this.config.server.port}`);
+        this.container.logger.log(
+          {},
+          `The server is running on ${this.config.server.port}`,
+        );
         return res();
       });
     });

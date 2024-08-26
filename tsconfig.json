@@ -1,20 +1,21 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "strict": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "preserveWatchOutput": true,
     "allowJs": true,
     "noEmit": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "typeRoots": ["./@types", "./node_modules/@types"]
   },
   "types": ["jest", "node"],
-  "include": ["src/**/*", "./index.ts", "test/**/*"],
+  "include": ["./src", "./tests"],
   "exclude": ["node_modules"],
   "extends": "./tsconfig.paths.json",
   "ts-node": {

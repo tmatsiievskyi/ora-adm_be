@@ -3,6 +3,7 @@ import { FileService } from '@utils/file.util';
 import { Formatter } from '@utils/formatter.util';
 import { IncomingMessage, ServerResponse } from 'http';
 import { EHttpStatusCode, EMessageCode } from './http.type';
+import { Logger } from '@utils/logger.util';
 
 export type TRequest = IncomingMessage;
 export type TResponse = ServerResponse;
@@ -33,6 +34,7 @@ export type TContainer = {
   fileService: FileService;
   formatter: Formatter;
   common: Common;
+  logger: Logger;
 };
 
 export type TLocalFilesToFind = {

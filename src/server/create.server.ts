@@ -9,7 +9,7 @@ export const createServer = () => {
     suffix: '.controller.ts',
   };
 
-  const container = createContainer();
+  const container = createContainer(config);
 
   const httpServer = new HttpServer(config, container, controllersToFind);
 

@@ -1,7 +1,11 @@
-import { IController, TReqUrlData } from '@common/types';
+import { IController, TRequest, TReqUrlData, TResponse } from '@common/types';
 
 class UserController implements IController {
-  public handleRequest = async (reqUrl: TReqUrlData) => {};
+  public handleRequest = async (
+    req: TRequest,
+    res: TResponse,
+    reqUrl: TReqUrlData,
+  ) => {};
 }
 
 export default UserController;

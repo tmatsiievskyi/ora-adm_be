@@ -1,7 +1,12 @@
-import { TReqUrlData } from './server.type';
+import { TRequest, TReqUrlData, TResponse } from './server.type';
+import { TParseReq } from './utils.type';
 
 export interface IController {
-  handleRequest: (url: TReqUrlData) => Promise<any>; //TODO: add type
+  handleRequest: (
+    req: TRequest,
+    res: TResponse,
+    parsedURL: TReqUrlData,
+  ) => Promise<any>; //TODO: add type
 }
 
 export enum EAUTH_ACTIONS {

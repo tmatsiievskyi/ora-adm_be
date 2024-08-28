@@ -24,7 +24,6 @@ export class HttpServer {
     const { url, method } = req;
 
     try {
-      const startTime = Date.now();
       if (!url || !method) {
         throw new HttpException({
           message: 'Not valid request',
@@ -32,20 +31,19 @@ export class HttpServer {
         });
       }
 
-      const parsedUrl = this.container.common.parseURL(url, method);
+      const parsedURL = this.container.common.parseURL(req.url, req.method);
 
-      if (!parsedUrl.name || !this.controllers[parsedUrl.name]) {
+      if (!parsedURL?.name || !this.controllers[parsedURL?.name]) {
         throw new NotFoundException();
       }
-
-      const data =
-        await this.controllers[parsedUrl.name].handleRequest(parsedUrl);
-      res.end(
-        this.container.formatter.formatResp(data, Date.now() - startTime),
-      );
+      await this.controllers[parsedURL.name].handleRequest(req, res, parsedURL);
+      // res.end(
+      //   this.container.formatter.formatResp(data, Date.now() - startTime),
+      // );
     } catch (error) {
       this.container.logger.error(error, 'Request Handler');
       if (error instanceof HttpException) {
+        res.statusCode = error.statusCode;
         res.end(this.container.formatter.formatResp(error, 0, error.message));
       } else {
         const err = this.container.formatter.errorHandler(error);

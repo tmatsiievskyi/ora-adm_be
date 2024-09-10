@@ -1,7 +1,7 @@
 import { createServer } from '@server/create.server';
 
-(() => {
-  const app = createServer();
+(async () => {
+  const app = await createServer();
 
   app.startServer();
 })();

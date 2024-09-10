@@ -20,15 +20,15 @@ export const options: Record<string, TLoggerOptionsOrStream> = {
 export class Logger {
   private readonly logger: pino.Logger;
 
-  constructor(private readonly config: TConfig['server']) {
-    this.logger = this.initLogger(this.config.nodeEnv);
+  constructor(private readonly config?: TConfig['server']) {
+    this.logger = this.initLogger(this.config?.nodeEnv || 'development');
   }
 
   debug(obj: object, message: string) {
     this.logger.debug(obj, message);
   }
 
-  log(obj: object, message?: string) {
+  log(message?: string, obj?: object) {
     this.logger.info(obj, message);
   }
 

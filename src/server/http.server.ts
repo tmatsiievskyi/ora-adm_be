@@ -22,7 +22,7 @@ export class HttpServer {
 
   private async handleRequest(req: TRequest, res: TResponse) {
     const { url, method } = req;
-
+    const startTime = Date.now();
     try {
       if (!url || !method) {
         throw new HttpException({
@@ -36,10 +36,19 @@ export class HttpServer {
       if (!parsedURL?.name || !this.controllers[parsedURL?.name]) {
         throw new NotFoundException();
       }
-      await this.controllers[parsedURL.name].handleRequest(req, res, parsedURL);
-      // res.end(
-      //   this.container.formatter.formatResp(data, Date.now() - startTime),
-      // );
+      const result = await this.controllers[parsedURL.name].handleRequest(
+        req,
+        res,
+        parsedURL,
+      );
+      res.statusCode = result?.status || 200;
+      res.end(
+        this.container.formatter.formatResp(
+          result?.data,
+          Date.now() - startTime,
+          result?.message,
+        ),
+      );
     } catch (error) {
       this.container.logger.error(error, 'Request Handler');
       if (error instanceof HttpException) {
@@ -100,8 +109,8 @@ export class HttpServer {
 
       return this.server.listen(this.config.server.port, () => {
         this.container.logger.log(
-          {},
           `The server is running on ${this.config.server.port}`,
+          {},
         );
         return res();
       });

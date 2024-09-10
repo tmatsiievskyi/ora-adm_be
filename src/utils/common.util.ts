@@ -40,11 +40,18 @@ export class Common {
     return paramsObj;
   }
 
-  public async parseReq<TBody = void>(req: TRequest): TParseReq<TBody> {
+  public async parseReq<TBody = void>(req: TRequest) {
     const body = await this.getReqBody<TBody>(req);
     const parsedURL = this.parseURL(req.url, req.method);
     const params = this.getReqParams(req);
 
     return { parsedURL, body, params };
+  }
+
+  public removeFromObj(obj: Record<string, any>, toRemove: string[]) {
+    const result = Object.fromEntries(
+      Object.entries(obj).filter(([key]) => !toRemove.includes(key)),
+    );
+    return result;
   }
 }

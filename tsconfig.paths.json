@@ -4,7 +4,8 @@
       "@common/*": ["./src/common/*"],
       "@server/*": ["./src/server/*"],
       "@config": ["./src/config/index.ts"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@db": ["./src/db/index.ts"]
     }
   }
 }

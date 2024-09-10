@@ -35,3 +35,61 @@ export class NotFoundException extends HttpException {
     });
   }
 }
+
+export class BadRequest extends HttpException {
+  constructor(
+    message?: TExceptionMessage,
+    code?: EHttpStatusCode,
+    messageCode?: EMessageCode,
+  ) {
+    super({
+      message: message || 'Bad Request',
+      messageCode: messageCode || EMessageCode.BAD_REQUEST,
+      statusCode: code || EHttpStatusCode.BAD_REQUEST,
+    });
+  }
+}
+
+export class AuthException extends HttpException {
+  constructor(
+    message?: TExceptionMessage,
+    code?: EHttpStatusCode,
+    messageCode?: EMessageCode,
+  ) {
+    super({
+      message: message || 'Auth Exception',
+      messageCode: messageCode || EMessageCode.INVALID_CREDENTIALS,
+      statusCode: code || EHttpStatusCode.UNAUTHORIZED,
+    });
+  }
+}
+
+export class TokenException extends HttpException {
+  constructor() {
+    super({
+      message: 'Token exception',
+      messageCode: EMessageCode.TOKEN_VERIFY,
+      statusCode: EHttpStatusCode.UNAUTHORIZED,
+    });
+  }
+}
+
+export class TokenExpiredException extends HttpException {
+  constructor(message?: TExceptionMessage) {
+    super({
+      message: message || 'Token expired',
+      messageCode: EMessageCode.TOKEN_EXPIRED,
+      statusCode: EHttpStatusCode.UNAUTHORIZED,
+    });
+  }
+}
+
+export class AccessTokenMissingException extends HttpException {
+  constructor(message?: TExceptionMessage) {
+    super({
+      message: message || 'Acces token is missing',
+      messageCode: EMessageCode.TOKEN_NOT_PROVIDED,
+      statusCode: EHttpStatusCode.UNAUTHORIZED,
+    });
+  }
+}

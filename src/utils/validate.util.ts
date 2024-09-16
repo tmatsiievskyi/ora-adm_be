@@ -18,11 +18,11 @@ export class Validate {
     try {
       schema.parse({
         body: parsedReq.body,
-        query: parsedReq.parsedURL?.query,
-        params: parsedReq.params,
+        query: parsedReq.queryParams,
+        params: parsedReq.reqParams,
       });
     } catch (e: any) {
-      throw new HttpException({ statusCode: 401, message: e });
+      throw new HttpException({ statusCode: 400, message: e });
     }
   }
 
@@ -30,7 +30,7 @@ export class Validate {
     data: Record<string, string>,
     config: TConfig['tokens'],
   ) {
-    if (!('accessToken' in data || !('refreshToken' in data))) {
+    if (!('accessToken' in data) && !('refreshToken' in data)) {
       throw new AuthException();
     }
 

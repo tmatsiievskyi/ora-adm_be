@@ -15,3 +15,16 @@ export type TRefreshToken = {
   login: string;
   token: string;
 } & TMongoDefault;
+
+export type TEmployee = {
+  firstName: string;
+  lastName: string;
+  surname: string;
+  imgUrl: string;
+  smImgUrl: string;
+  position: string;
+  department: string;
+  index: number;
+  illness?: string[];
+  achievements?: string[];
+} & TMongoDefault;

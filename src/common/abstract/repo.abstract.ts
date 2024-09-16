@@ -11,6 +11,17 @@ export abstract class AbstractRepo<TDocument> {
     return this.model.find(filterQuert).lean<TDocument[]>(true);
   }
 
+  async findWithPagination(page: number, pageSize: number) {
+    return this.model.aggregate([
+      {
+        $facet: {
+          metadata: [{ $count: 'totalCount' }],
+          items: [{ $skip: (page - 1) * pageSize }, { $limit: pageSize }],
+        },
+      },
+    ]);
+  }
+
   async findOne(filterQuery: FilterQuery<TDocument>) {
     const document = await this.model
       .findOne(filterQuery)
@@ -37,7 +48,7 @@ export abstract class AbstractRepo<TDocument> {
   }
 
   async findOneAndDelete(filterQuery: FilterQuery<TDocument>) {
-    return await this.model.findOneAndDelete(filterQuery);
+    return await this.model.findOneAndDelete(filterQuery).lean<TDocument>(true);
   }
 
   async findOneAndUpdate(

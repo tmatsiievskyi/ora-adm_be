@@ -31,16 +31,13 @@ export class HttpServer {
         });
       }
 
-      const parsedURL = this.container.common.parseURL(req.url, req.method);
+      const href = url.split('?')[0];
+      const [base, name, action] = href.substring(1).split('/');
 
-      if (!parsedURL?.name || !this.controllers[parsedURL?.name]) {
+      if (!name || !this.controllers[name]) {
         throw new NotFoundException();
       }
-      const result = await this.controllers[parsedURL.name].handleRequest(
-        req,
-        res,
-        parsedURL,
-      );
+      const result = await this.controllers[name].handleRequest(req, res);
       res.statusCode = result?.status || 200;
       res.end(
         this.container.formatter.formatResp(

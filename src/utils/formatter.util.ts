@@ -1,19 +1,25 @@
 import { TApiResponse } from '@common/types';
 
 export class Formatter {
-  public formatResp<T>(
-    result: any,
-    time: number,
-    message?: string,
-    total?: number,
-  ) {
+  public formatResp<T>(result: any, time: number, message?: string) {
     let numRecords = 0;
     let errors: string[] | null = null;
     let data = null;
+    let total = 0;
 
     if (result && result instanceof Array) {
       numRecords = result.length;
       data = result;
+    } else if (
+      result &&
+      typeof result === 'object' &&
+      !(result instanceof Error)
+    ) {
+      data = result.items ?? result;
+      total = Array.isArray(result?.metadata)
+        ? result.metadata[0].totalCount
+        : 1;
+      numRecords = result.items?.length ?? 1;
     } else if (result && result instanceof Error) {
       errors = [this.errorStringify(result)];
     } else if (result || result === 0) {

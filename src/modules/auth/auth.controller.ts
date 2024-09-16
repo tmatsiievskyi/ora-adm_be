@@ -18,7 +18,6 @@ import {
   loginUserSchema,
 } from '../auth/auth.schema';
 import { AuthService } from './auth.service';
-import { UserService } from '../users';
 import { RefreshTokenService } from '../refreshToken/refreshToken.service';
 
 class AuthController implements IController {
@@ -33,30 +32,60 @@ class AuthController implements IController {
     this.refreshTokenService = new RefreshTokenService();
   }
 
-  public async handleRequest(
-    req: TRequest,
-    res: TResponse,
-    parsedUrl: TReqUrlData,
-  ) {
-    switch (parsedUrl.urlWithMethod) {
-      case EAUTH_ACTIONS.SIGN_IN:
-        return await this.handleSignIn(req, res, parsedUrl);
-      case EAUTH_ACTIONS.SIGN_UP:
-        return await this.handleSignUp(req, res, parsedUrl);
-      case EAUTH_ACTIONS.SIGN_OUT:
-        return await this.handleSignOut(req, res, parsedUrl);
-      case EAUTH_ACTIONS.REFRESH:
-        return await this.handleRefresh(req, res, parsedUrl);
+  public async handleRequest(req: TRequest, res: TResponse) {
+    const parsedUrl = this.container.common.parseURL(req.url, req.method);
+
+    switch (true) {
+      case this.container.common.checkUrlToEnum(
+        EAUTH_ACTIONS.SIGN_IN,
+        parsedUrl?.methodWithHref,
+      ): {
+        return await this.handleSignIn(req, res);
+      }
+
+      case this.container.common.checkUrlToEnum(
+        EAUTH_ACTIONS.SIGN_UP,
+        parsedUrl?.methodWithHref,
+      ): {
+        return await this.handleSignUp(req, res);
+      }
+
+      case this.container.common.checkUrlToEnum(
+        EAUTH_ACTIONS.SIGN_OUT,
+        parsedUrl?.methodWithHref,
+      ): {
+        return await this.handleSignOut(req, res);
+      }
+
+      case this.container.common.checkUrlToEnum(
+        EAUTH_ACTIONS.REFRESH,
+        parsedUrl?.methodWithHref,
+      ): {
+        return await this.handleRefresh(req, res);
+      }
 
       default:
         throw new NotFoundException();
     }
+
+    // switch (parsedUrl.urlWithMethod) {
+    //   case EAUTH_ACTIONS.SIGN_IN:
+    //     return await this.handleSignIn(req, res, parsedUrl);
+    //   case EAUTH_ACTIONS.SIGN_UP:
+    //     return await this.handleSignUp(req, res, parsedUrl);
+    //   case EAUTH_ACTIONS.SIGN_OUT:
+    //     return await this.handleSignOut(req, res, parsedUrl);
+    //   case EAUTH_ACTIONS.REFRESH:
+    //     return await this.handleRefresh(req, res, parsedUrl);
+
+    //   default:
+    //     throw new NotFoundException();
+    // }
   }
 
   private async handleSignIn(
     req: TRequest,
     res: TResponse,
-    parsedUrl: TReqUrlData,
   ): Promise<TControllerMethodResult> {
     const parsedReq =
       await this.container.common.parseReq<LoginUserInput['body']>(req);
@@ -91,10 +120,23 @@ class AuthController implements IController {
       refreshTokenCookie,
       loggedInCookie,
     ]);
-    await this.refreshTokenService.save({
+
+    const refreshTokenInDB = await this.refreshTokenService.findOneBy({
       login: parsedReq.body.login,
-      token: refreshToken,
     });
+
+    if (refreshTokenInDB) {
+      await this.refreshTokenService.update(
+        { login: parsedReq.body.login },
+        { login: parsedReq.body.login, token: refreshToken },
+      );
+    } else {
+      await this.refreshTokenService.save({
+        login: parsedReq.body.login,
+        token: refreshToken,
+      });
+    }
+
     this.container.logger.log(
       `User with login: ${parsedReq.body.login} just logged in`,
     );
@@ -108,7 +150,6 @@ class AuthController implements IController {
   private async handleSignUp(
     req: TRequest,
     res: TResponse,
-    parsedUrl: TReqUrlData,
   ): Promise<TControllerMethodResult> {
     const parsedReq =
       await this.container.common.parseReq<CreateUserInput['body']>(req);
@@ -132,7 +173,6 @@ class AuthController implements IController {
   private async handleSignOut(
     req: TRequest,
     res: TResponse,
-    parsedUrl: TReqUrlData,
   ): Promise<TControllerMethodResult> {
     const cookieData = this.container.cookie.get(req.headers.cookie);
     const { login } = await this.container.validate.validateAuth(
@@ -161,11 +201,7 @@ class AuthController implements IController {
     };
   }
 
-  private async handleRefresh(
-    req: TRequest,
-    res: TResponse,
-    parsedUrl: TReqUrlData,
-  ) {
+  private async handleRefresh(req: TRequest, res: TResponse) {
     const cookieData = this.container.cookie.get(req.headers.cookie);
     const { login } = this.container.validate.validateRefreshToken(
       cookieData,

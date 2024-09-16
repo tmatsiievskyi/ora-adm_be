@@ -13,7 +13,7 @@ export class RefreshTokenService {
   }
 
   public async findOneBy(data: Partial<TRefreshToken>) {
-    return await this.refereshTokenRepo.findOne(data);
+    return await this.refereshTokenRepo.findOneByLogin(data);
   }
 
   public async update(

@@ -1,7 +1,9 @@
+import { TEmployee } from '@common/types';
 import { EmployeesRepo } from './employees.repo';
 import {
   CreateEmployeeInput,
   FindAllEmployeesInput,
+  findAllEmployeesSchema,
   FindByIdEmployeeInput,
   TDeleteByIdEmplyeeInput,
   TUpdateByIdEmployeeInput,
@@ -11,7 +13,9 @@ export class EmployeesService {
   private readonly employeesRepo = new EmployeesRepo();
 
   public async findAll(data: FindAllEmployeesInput['query'] | null) {
-    return this.employeesRepo.findWithPagination(
+    if (!data) return this.employeesRepo.find({});
+
+    return this.employeesRepo.findWithPagination<TEmployee>(
       Number(data?.page),
       Number(data?.pageSize),
     );

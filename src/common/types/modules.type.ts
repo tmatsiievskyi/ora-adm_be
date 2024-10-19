@@ -1,11 +1,12 @@
+import { MIME_TYPES } from '@common/contstants';
 import { EHttpStatusCode, EMessageCode } from './http.type';
 import { TRequest, TReqUrlData, TResponse } from './server.type';
-import { TParseReq } from './utils.type';
 
-export type TControllerMethodResult = {
-  data: any;
+export type TControllerMethodResult<T = unknown> = {
+  data: T;
   status: EHttpStatusCode;
   message: EMessageCode;
+  mime_type?: keyof typeof MIME_TYPES;
 };
 
 export interface IController {

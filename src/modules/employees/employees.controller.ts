@@ -6,6 +6,7 @@ import {
   TConfig,
   TContainer,
   TControllerMethodResult,
+  TEmployee,
   TRequest,
   TResponse,
 } from '@common/types';
@@ -95,7 +96,7 @@ class EmployeesController implements IController {
     req: TRequest,
     res: TResponse,
     parsedUrl: any,
-  ): Promise<TControllerMethodResult> {
+  ): Promise<TControllerMethodResult<TEmployee[]>> {
     const cookieData = this.container.cookie.get(req.headers.cookie);
     const parsedReq = await this.container.common.parseReq<
       void,
@@ -109,8 +110,10 @@ class EmployeesController implements IController {
 
     const result = await this.employeesService.findAll(parsedReq.queryParams);
 
+    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+
     return {
-      data: result[0],
+      data: result,
       status: EHttpStatusCode.OK,
       message: EMessageCode.OK,
     };
@@ -126,6 +129,8 @@ class EmployeesController implements IController {
       void,
       FindByIdEmployeeInput['params']
     >(req, reqMask);
+
+    console.log(2);
 
     const result = await this.employeesService.findById(parsedReq.reqParams);
 

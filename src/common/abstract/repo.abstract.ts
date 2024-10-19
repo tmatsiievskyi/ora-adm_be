@@ -11,7 +11,10 @@ export abstract class AbstractRepo<TDocument> {
     return this.model.find(filterQuert).lean<TDocument[]>(true);
   }
 
-  async findWithPagination(page: number, pageSize: number) {
+  async findWithPagination<TDocument = any>(
+    page: number,
+    pageSize: number,
+  ): Promise<TDocument[]> {
     return this.model.aggregate([
       {
         $facet: {

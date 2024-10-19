@@ -1,3 +1,4 @@
+import { HEADERS, MIME_TYPES } from '@common/contstants';
 import { HttpException, NotFoundException } from '@common/exceptions';
 import {
   EHttpStatusCode,
@@ -38,7 +39,13 @@ export class HttpServer {
         throw new NotFoundException();
       }
       const result = await this.controllers[name].handleRequest(req, res);
-      res.statusCode = result?.status || 200;
+      const mimeType = MIME_TYPES[result?.mime_type || 'json'];
+      // res.statusCode = result?.status || 200;
+      res.writeHead(result?.status || 200, {
+        ...HEADERS,
+        'Content-Type': mimeType,
+      });
+
       res.end(
         this.container.formatter.formatResp(
           result?.data,

@@ -51,11 +51,11 @@ export const findAllEmployeesSchema = object({
   query: object({
     page: string({
       required_error: 'Page is required',
-    }),
+    }).optional(),
     pageSize: string({
       required_error: 'Page size is required',
-    }),
-  }),
+    }).optional(),
+  }).nullable(),
 });
 
 export const findByIdEmployeeSchema = object({

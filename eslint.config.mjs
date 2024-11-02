@@ -54,7 +54,7 @@ export default [
     'airbnb-typescript/base',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'plugin:prettier/recommended'
+    'plugin:prettier/recommended',
   ),
   {
     plugins: {

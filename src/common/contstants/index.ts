@@ -6,9 +6,10 @@ export const HEADERS = {
   'X-XSS-Protection': '1; mode=block',
   'X-Content-Type-Options': 'nosniff',
   'Strict-Transport-Security': 'max-age=31536000; includeSubdomains; preload',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Origin': 'http://localhost:5173',
+  'Access-Control-Allow-Methods': 'POST, GET, PUT, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, authorization',
+  'Access-Control-Allow-Credentials': 'true',
 } as const;
 
 export const MIME_TYPES = {

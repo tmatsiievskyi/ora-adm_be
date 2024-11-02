@@ -9,6 +9,7 @@ import {
   TAcessTokenPayload,
   TConfig,
   TRefreshTokenPayload,
+  TRequest,
 } from '@common/types';
 
 export class Validate {
@@ -26,33 +27,55 @@ export class Validate {
     }
   }
 
-  public async validateAuth(
-    data: Record<string, string>,
-    config: TConfig['tokens'],
-  ) {
-    if (!('accessToken' in data) && !('refreshToken' in data)) {
-      throw new AuthException();
-    }
+  public async validateAuth(req: TRequest, config: TConfig['tokens']) {
+    // if (!('accessToken' in data) && !('refreshToken' in data)) {
+    //   throw new AuthException();
+    // }
+    // if (!('accessToken' in data) && 'refreshToken' in data) {
+    //   throw new AccessTokenMissingException();
+    // }
+    // return this.jwt.verifyJwt<TAcessTokenPayload>(
+    //   data.accessToken,
+    //   config.access.secret,
+    // );
 
-    if (!('accessToken' in data) && 'refreshToken' in data) {
-      throw new AccessTokenMissingException();
-    }
+    const authToken = this.parseHeadersAuthToken(req);
+    if (!authToken) throw new AuthException();
 
-    return this.jwt.verifyJwt<TAcessTokenPayload>(
-      data.accessToken,
-      config.access.secret,
-    );
+    const data = this.readToken(authToken, config);
+
+    return data;
   }
 
-  public validateRefreshToken(
-    data: Record<string, string>,
-    config: TConfig['tokens'],
-  ) {
-    if (!('refreshToken' in data)) {
-      throw new AuthException();
+  public parseHeadersAuthToken(req: TRequest) {
+    let foundedToken: string | null = null;
+
+    console.log(req.headers.authorization);
+
+    if (req && req.headers && req.headers.authorization) {
+      const parts = req.headers.authorization.split(' ');
+      if (parts.length === 2) {
+        const scheme: string = parts[0];
+        const credentials: string = parts[1];
+
+        if (/^Bearer:$/i.test(scheme)) {
+          foundedToken = credentials;
+        }
+      }
     }
+
+    return foundedToken;
+  }
+
+  public readToken(token: string, config: TConfig['tokens']) {
+    return this.jwt.verifyJwt<TAcessTokenPayload>(token, config.access.secret);
+  }
+
+  public validateRefreshToken(token: string | null, config: TConfig['tokens']) {
+    if (!token) throw new AuthException();
+
     return this.jwt.verifyJwt<TRefreshTokenPayload>(
-      data.refreshToken,
+      token,
       config.refresh.secret,
     );
   }

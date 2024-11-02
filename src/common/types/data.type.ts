@@ -9,6 +9,7 @@ export type TMongoDefault = {
 export type TUser = {
   login: string;
   password: string;
+  isVerified: boolean;
 } & TMongoDefault;
 
 export type TRefreshToken = {

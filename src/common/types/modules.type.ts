@@ -19,8 +19,12 @@ export interface IController {
 export enum EAUTH_ACTIONS {
   SIGN_IN = 'POST:/api/auth/sign-in',
   SIGN_UP = 'POST:/api/auth/sign-up',
-  SIGN_OUT = 'GET:/api/auth/sign-out',
-  REFRESH = 'GET:/api/auth/refresh',
+  SIGN_OUT = 'POST:/api/auth/sign-out',
+  REFRESH = 'POST:/api/auth/refresh',
+  OPTIONS_SIGN_UP = 'OPTIONS:/api/auth/sign-up',
+  OPTIONS_SIGN_IN = 'OPTIONS:/api/auth/sign-in',
+  OPTIONS_SIGN_OUT = 'OPTIONS:/api/auth/sign-out',
+  OPTIONS_REFRESH = 'OPTIONS:/api/auth/refresh',
 }
 
 export enum EEMPLOYEES_ACTIONS {
@@ -29,6 +33,12 @@ export enum EEMPLOYEES_ACTIONS {
   FIND_BY_ID = 'GET:/api/employees/:id',
   UPDATE_BY_ID = 'PUT:/api/employees/:id',
   DELETE_BY_ID = 'DELETE:/api/employees/:id',
+  OPTIONS_FIND_ALL = 'OPTIONS:/api/employees',
+}
+
+export enum EUSER_ACTIONS {
+  ME = 'GET:/api/users/me',
+  OPTIONS_ME = 'OPTIONS:/api/users/me',
 }
 
 export type TSignUpBody = {

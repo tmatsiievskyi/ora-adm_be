@@ -56,11 +56,17 @@ export class HttpServer {
     } catch (error) {
       this.container.logger.error(error, 'Request Handler');
       if (error instanceof HttpException) {
-        res.statusCode = error.statusCode;
+        res.writeHead(error.statusCode, {
+          ...HEADERS,
+          'Content-Type': 'application/json',
+        });
         res.end(this.container.formatter.formatResp(error, 0, error.message));
       } else {
         const err = this.container.formatter.errorHandler(error);
-        res.statusCode = EHttpStatusCode.INTERNAL_SERVER_ERROR;
+        res.writeHead(EHttpStatusCode.INTERNAL_SERVER_ERROR, {
+          ...HEADERS,
+          'Content-Type': 'application/json',
+        });
         res.end(this.container.formatter.formatResp(err, 0, err.message));
       }
     }

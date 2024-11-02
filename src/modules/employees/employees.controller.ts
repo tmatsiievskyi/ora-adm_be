@@ -37,6 +37,17 @@ class EmployeesController implements IController {
 
     switch (true) {
       case this.container.common.checkUrlToEnum(
+        EEMPLOYEES_ACTIONS.OPTIONS_FIND_ALL,
+        parsedUrl?.methodWithHref,
+      ): {
+        return {
+          data: {},
+          status: EHttpStatusCode.OK,
+          message: EMessageCode.OK,
+        };
+      }
+
+      case this.container.common.checkUrlToEnum(
         EEMPLOYEES_ACTIONS.FIND_ALL,
         parsedUrl?.methodWithHref,
       ): {
@@ -106,11 +117,8 @@ class EmployeesController implements IController {
 
     this.container.validate.validateReq(parsedReq, findAllEmployeesSchema);
 
-    // await this.container.validate.validateAuth(cookieData, this.config.tokens); TODO: //turn on
-
+    await this.container.validate.validateAuth(req, this.config.tokens);
     const result = await this.employeesService.findAll(parsedReq.queryParams);
-
-    // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
 
     return {
       data: result,

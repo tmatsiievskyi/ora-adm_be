@@ -1,3 +1,3 @@
-export * from './user.model';
-export * from './user.repo';
-export * from './user.service';
+export * from './users.model';
+export * from './users.repo';
+export * from './users.service';

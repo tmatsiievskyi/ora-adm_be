@@ -35,7 +35,32 @@ class AuthController implements IController {
   public async handleRequest(req: TRequest, res: TResponse) {
     const parsedUrl = this.container.common.parseURL(req.url, req.method);
 
+    console.log(parsedUrl);
+
     switch (true) {
+      case this.container.common.checkUrlToEnum(
+        EAUTH_ACTIONS.OPTIONS_SIGN_UP,
+        parsedUrl?.methodWithHref,
+      ):
+      case this.container.common.checkUrlToEnum(
+        EAUTH_ACTIONS.OPTIONS_SIGN_IN,
+        parsedUrl?.methodWithHref,
+      ):
+      case this.container.common.checkUrlToEnum(
+        EAUTH_ACTIONS.OPTIONS_REFRESH,
+        parsedUrl?.methodWithHref,
+      ):
+      case this.container.common.checkUrlToEnum(
+        EAUTH_ACTIONS.OPTIONS_SIGN_OUT,
+        parsedUrl?.methodWithHref,
+      ): {
+        return {
+          data: {},
+          status: EHttpStatusCode.OK,
+          message: EMessageCode.OK,
+        };
+      }
+
       case this.container.common.checkUrlToEnum(
         EAUTH_ACTIONS.SIGN_IN,
         parsedUrl?.methodWithHref,
@@ -67,20 +92,6 @@ class AuthController implements IController {
       default:
         throw new NotFoundException();
     }
-
-    // switch (parsedUrl.urlWithMethod) {
-    //   case EAUTH_ACTIONS.SIGN_IN:
-    //     return await this.handleSignIn(req, res, parsedUrl);
-    //   case EAUTH_ACTIONS.SIGN_UP:
-    //     return await this.handleSignUp(req, res, parsedUrl);
-    //   case EAUTH_ACTIONS.SIGN_OUT:
-    //     return await this.handleSignOut(req, res, parsedUrl);
-    //   case EAUTH_ACTIONS.REFRESH:
-    //     return await this.handleRefresh(req, res, parsedUrl);
-
-    //   default:
-    //     throw new NotFoundException();
-    // }
   }
 
   private async handleSignIn(
@@ -93,33 +104,39 @@ class AuthController implements IController {
     if (!parsedReq.body) {
       throw new BadRequest();
     }
-    const [accessToken, refreshToken] = await this.authService.handleSignIn(
-      parsedReq.body,
-    );
-    const accessTokenCookie = this.container.cookie.set(
-      'accessToken',
-      accessToken,
-      {
-        Expires: this.config.tokens.access.expires,
-        HttpOnly: true,
-      },
-    );
-    const refreshTokenCookie = this.container.cookie.set(
-      'refreshToken',
-      refreshToken,
-      {
-        Expires: this.config.tokens.refresh.expires,
-        HttpOnly: true,
-      },
-    );
-    const loggedInCookie = this.container.cookie.set('loggedIn', 'true', {
-      Expires: this.config.tokens.access.expires,
-    });
-    res.setHeader('Set-Cookie', [
-      accessTokenCookie,
-      refreshTokenCookie,
-      loggedInCookie,
-    ]);
+    const {
+      tokens: [accessToken, refreshToken],
+      user,
+    } = await this.authService.handleSignIn(parsedReq.body);
+    // const accessTokenCookie = this.container.cookie.set(
+    //   'accessToken',
+    //   accessToken,
+    //   {
+    //     Expires: this.config.tokens.access.expires,
+    //     path: '/api',
+    //     HttpOnly: true,
+    //     sameSite: 'lax',
+    //   },
+    // );
+    // const refreshTokenCookie = this.container.cookie.set(
+    //   'refreshToken',
+    //   refreshToken,
+    //   {
+    //     Expires: this.config.tokens.refresh.expires,
+    //     path: '/api',
+    //     HttpOnly: true,
+    //     sameSite: 'lax',
+    //   },
+    // );
+    // const loggedInCookie = this.container.cookie.set('loggedIn', 'true', {
+    //   Expires: this.config.tokens.access.expires,
+    //   path: '/api',
+    // });
+    // res.setHeader('Set-Cookie', [
+    //   accessTokenCookie,
+    //   refreshTokenCookie,
+    //   loggedInCookie,
+    // ]);
 
     const refreshTokenInDB = await this.refreshTokenService.findOneBy({
       login: parsedReq.body.login,
@@ -141,7 +158,7 @@ class AuthController implements IController {
       `User with login: ${parsedReq.body.login} just logged in`,
     );
     return {
-      data: 'ok',
+      data: { user, tokens: { accessToken, refreshToken } },
       status: EHttpStatusCode.OK,
       message: EMessageCode.OK,
     };
@@ -175,10 +192,10 @@ class AuthController implements IController {
     res: TResponse,
   ): Promise<TControllerMethodResult> {
     const cookieData = this.container.cookie.get(req.headers.cookie);
-    const { login } = await this.container.validate.validateAuth(
-      cookieData,
-      this.config.tokens,
-    );
+    console.log(cookieData);
+    const {
+      data: { login },
+    } = await this.container.validate.validateAuth(req, this.config.tokens);
 
     await this.refreshTokenService.delete({ login });
 
@@ -203,50 +220,55 @@ class AuthController implements IController {
 
   private async handleRefresh(req: TRequest, res: TResponse) {
     const cookieData = this.container.cookie.get(req.headers.cookie);
-    const { login } = this.container.validate.validateRefreshToken(
-      cookieData,
-      this.config.tokens,
-    );
+    const token = this.container.validate.parseHeadersAuthToken(req);
+    const {
+      data: { login, _id },
+    } = this.container.validate.validateRefreshToken(token, this.config.tokens);
     await this.refreshTokenService.findOneBy({
       login,
     });
 
     const [accessToken, refreshToken] =
-      await this.authService.generateAuthTokens(login);
+      await this.authService.generateAuthTokens({ login, _id });
 
-    const accessTokenCookie = this.container.cookie.set(
-      'accessToken',
-      accessToken,
-      {
-        Expires: this.config.tokens.access.expires,
-        HttpOnly: true,
-      },
-    );
-    const refreshTokenCookie = this.container.cookie.set(
-      'refreshToken',
-      refreshToken,
-      {
-        Expires: this.config.tokens.refresh.expires,
-        HttpOnly: true,
-      },
-    );
-    const loggedInCookie = this.container.cookie.set('loggedIn', 'true', {
-      Expires: this.config.tokens.access.expires,
-    });
+    // const accessTokenCookie = this.container.cookie.set(
+    //   'accessToken',
+    //   accessToken,
+    //   {
+    //     Expires: this.config.tokens.access.expires,
+    //     path: '/api',
+    //     HttpOnly: true,
+    //     sameSite: 'lax',
+    //   },
+    // );
+    // const refreshTokenCookie = this.container.cookie.set(
+    //   'refreshToken',
+    //   refreshToken,
+    //   {
+    //     Expires: this.config.tokens.refresh.expires,
+    //     path: '/api',
+    //     HttpOnly: true,
+    //     sameSite: 'lax',
+    //   },
+    // );
+    // const loggedInCookie = this.container.cookie.set('loggedIn', 'true', {
+    //   Expires: this.config.tokens.access.expires,
+    //   path: '/api',
+    // });
 
     await this.refreshTokenService.update(
       { login },
       { login, token: refreshToken },
     );
 
-    res.setHeader('Set-Cookie', [
-      accessTokenCookie,
-      refreshTokenCookie,
-      loggedInCookie,
-    ]);
+    // res.setHeader('Set-Cookie', [
+    //   accessTokenCookie,
+    //   refreshTokenCookie,
+    //   loggedInCookie,
+    // ]);
 
     return {
-      data: 'ok',
+      data: { tokens: { accessToken, refreshToken } },
       status: EHttpStatusCode.OK,
       message: EMessageCode.OK,
     };

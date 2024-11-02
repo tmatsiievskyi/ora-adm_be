@@ -64,6 +64,20 @@ export class AuthException extends HttpException {
   }
 }
 
+export class UserVerifiedException extends HttpException {
+  constructor(
+    message?: TExceptionMessage,
+    code?: EHttpStatusCode,
+    messageCode?: EMessageCode,
+  ) {
+    super({
+      message: message || 'User is not verified',
+      messageCode: messageCode || EMessageCode.INVALID_CREDENTIALS,
+      statusCode: code || EHttpStatusCode.UNAUTHORIZED,
+    });
+  }
+}
+
 export class TokenException extends HttpException {
   constructor() {
     super({
@@ -87,7 +101,7 @@ export class TokenExpiredException extends HttpException {
 export class AccessTokenMissingException extends HttpException {
   constructor(message?: TExceptionMessage) {
     super({
-      message: message || 'Acces token is missing',
+      message: message || 'Access token is missing',
       messageCode: EMessageCode.TOKEN_NOT_PROVIDED,
       statusCode: EHttpStatusCode.UNAUTHORIZED,
     });

@@ -1,5 +1,15 @@
-import { TokenException, TokenExpiredException } from '@common/exceptions';
-import { sign, verify, SignOptions, JwtPayload } from 'jsonwebtoken';
+import {
+  AuthException,
+  TokenException,
+  TokenExpiredException,
+} from '@common/exceptions';
+import {
+  sign,
+  verify,
+  SignOptions,
+  JwtPayload,
+  TokenExpiredError,
+} from 'jsonwebtoken';
 
 export class Jwt {
   public async generateJwt(
@@ -19,9 +29,11 @@ export class Jwt {
       const decoded = verify(token, secret) as T;
       return decoded;
     } catch (error) {
-      console.log(error);
-      throw new TokenExpiredException(); //TODO: check error code
-      // if(error && error?.code ===)
+      if (error instanceof TokenExpiredError) {
+        throw new TokenExpiredException();
+      } else {
+        throw new AuthException();
+      }
     }
   }
 }

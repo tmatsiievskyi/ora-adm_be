@@ -7,8 +7,6 @@ import { Formatter } from '@utils/formatter.util';
 import { Jwt } from '@utils/jwt.util';
 import { Logger } from '@utils/logger.util';
 import { Validate } from '@utils/validate.util';
-import { AuthService } from 'src/modules/auth/auth.service';
-import { UserService } from 'src/modules/users/user.service';
 
 export const createContainer = (config: TConfig): TContainer =>
   ({

@@ -25,7 +25,7 @@ export abstract class AbstractRepo<TDocument> {
     ]);
   }
 
-  async findOne(filterQuery: FilterQuery<TDocument>) {
+  async findOne(filterQuery: FilterQuery<Omit<TDocument, '_id'>>) {
     const document = await this.model
       .findOne(filterQuery)
       .lean<TDocument>(true);
@@ -35,6 +35,17 @@ export abstract class AbstractRepo<TDocument> {
         {},
         `The document was not found with filterQuery ${filterQuery}`,
       );
+      throw new NotFoundException();
+    }
+
+    return document;
+  }
+
+  async findById(_id: string) {
+    const document = await this.model.findById(_id).lean<TDocument>(true);
+
+    if (!document) {
+      this.logger.warn({}, `The document was not found with _id: ${_id}`);
       throw new NotFoundException();
     }
 

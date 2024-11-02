@@ -1,12 +1,7 @@
-import { TConfig, TContainer, TParseReq, TSignUpBody } from '@common/types';
+import { TConfig, TContainer } from '@common/types';
 import { CreateUserInput, LoginUserInput } from '../auth';
-import { UserService } from '../users/user.service';
-import {
-  AuthException,
-  BadRequest,
-  HttpException,
-  NotFoundException,
-} from '@common/exceptions';
+import { UserService } from '../users/users.service';
+import { AuthException, BadRequest } from '@common/exceptions';
 
 export class AuthService {
   private readonly userService: UserService;
@@ -23,6 +18,7 @@ export class AuthService {
 
     const user = await this.userService.findByLogin({ login });
     if (!user) throw new AuthException();
+    if (!user.isVerified) throw new AuthException('User is not verified');
 
     const passwordMatch = await this.container.crypting.comparePasswords(
       user.password,
@@ -30,7 +26,13 @@ export class AuthService {
     );
     if (!passwordMatch) throw new AuthException();
 
-    return await this.generateAuthTokens(login);
+    return {
+      tokens: await this.generateAuthTokens({
+        login,
+        _id: user._id.toString(),
+      }),
+      user: this.container.common.removeFromObj(user, ['password']),
+    };
   }
 
   public async handleSignUp(data: CreateUserInput['body'] | null) {
@@ -57,17 +59,17 @@ export class AuthService {
     return createdUser;
   }
 
-  public async generateAuthTokens(login: string) {
+  public async generateAuthTokens(data: { login: string; _id: string }) {
     return await Promise.all([
       this.container.jwt.generateJwt(
-        { login, type: 'access' },
+        { data, type: 'access' },
         this.config.access.secret,
         {
           expiresIn: Number(this.config.access.expires),
         },
       ),
       this.container.jwt.generateJwt(
-        { login, type: 'refresh' },
+        { data, type: 'refresh' },
         this.config.refresh.secret,
         {
           expiresIn: Number(this.config.refresh.expires),

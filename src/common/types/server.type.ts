@@ -4,7 +4,7 @@ import { Formatter } from '@utils/formatter.util';
 import { IncomingMessage, ServerResponse } from 'http';
 import { EHttpStatusCode, EMessageCode } from './http.type';
 import { Logger } from '@utils/logger.util';
-import { UserService } from 'src/modules/users/user.service';
+import { UserService } from 'src/modules/users/users.service';
 import { AuthService } from 'src/modules/auth/auth.service';
 import { Validate } from '@utils/validate.util';
 import { Crypting } from '@utils/crypting.util';
@@ -58,14 +58,21 @@ export type TCookieOptions = {
   domain?: string;
   Secure?: boolean;
   HttpOnly?: boolean;
+  sameSite?: string;
 };
 
 export type TAcessTokenPayload = {
-  login: string;
+  data: {
+    login: string;
+    _id: string;
+  };
   type: 'access';
 };
 
 export type TRefreshTokenPayload = {
-  login: string;
+  data: {
+    login: string;
+    _id: string;
+  };
   type: 'refresh';
 };

@@ -12,6 +12,12 @@ export type TUser = {
   isVerified: boolean;
 } & TMongoDefault;
 
+export type TLocal = {
+  lng: string;
+  key: string;
+  value: string;
+};
+
 export type TRefreshToken = {
   login: string;
   token: string;

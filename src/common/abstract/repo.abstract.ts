@@ -8,7 +8,11 @@ export abstract class AbstractRepo<TDocument> {
   constructor(protected readonly model: Model<TDocument>) {}
 
   async find(filterQuert: FilterQuery<TDocument>) {
-    return this.model.find(filterQuert).lean<TDocument[]>(true);
+    const result = await this.model.find(filterQuert).lean<TDocument[]>(true);
+
+    if (!result.length) throw new NotFoundException();
+
+    return result;
   }
 
   async findWithPagination<TDocument = any>(
@@ -61,6 +65,12 @@ export abstract class AbstractRepo<TDocument> {
     return (await createdDoument.save()).toJSON() as unknown as TDocument;
   }
 
+  async createMany(
+    documents: Omit<TDocument, '_id' | 'createdAt' | 'updatedAt'>[],
+  ) {
+    const data = await this.model.insertMany(documents);
+  }
+
   async findOneAndDelete(filterQuery: FilterQuery<TDocument>) {
     return await this.model.findOneAndDelete(filterQuery).lean<TDocument>(true);
   }
@@ -84,5 +94,9 @@ export abstract class AbstractRepo<TDocument> {
     }
 
     return document;
+  }
+
+  async deleteMany(filterQuery: FilterQuery<TDocument>) {
+    return await this.model.deleteMany(filterQuery);
   }
 }

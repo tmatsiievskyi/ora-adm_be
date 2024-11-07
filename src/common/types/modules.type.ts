@@ -41,6 +41,13 @@ export enum EUSER_ACTIONS {
   OPTIONS_ME = 'OPTIONS:/api/users/me',
 }
 
+export enum ELOCALIZATION_ACTIONS {
+  SYNCHRONIZE = 'GET:/api/localization/synchronize',
+  SYNCHRONIZE_OPTIONS = 'OPTIONS:/api/localization/synchronize',
+  FIND_LOCALIZATION_JSON = 'GET:/api/localization/json',
+  FIND_LOCALIZATION_JSON_OPTIONS = 'OPTIONS:/api/localization/json',
+}
+
 export type TSignUpBody = {
   login: string;
   password: string;

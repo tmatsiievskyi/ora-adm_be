@@ -48,6 +48,11 @@ export enum ELOCALIZATION_ACTIONS {
   FIND_LOCALIZATION_JSON_OPTIONS = 'OPTIONS:/api/localization/json',
 }
 
+export enum EQR_ACTIONS {
+  GENERATE_QR = 'POST:/api/qr/generate',
+  GENERATE_QR_OPTIONS = 'OPTIONS:/api/qr/generate',
+}
+
 export type TSignUpBody = {
   login: string;
   password: string;

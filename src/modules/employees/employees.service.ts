@@ -12,12 +12,13 @@ import {
 export class EmployeesService {
   private readonly employeesRepo = new EmployeesRepo();
 
-  public async findAll(data: FindAllEmployeesInput['query'] | null) {
-    if (!data) return this.employeesRepo.find({});
+  public async findAll(reqData: FindAllEmployeesInput['query']) {
+    const { page = '1', limit = '10' } = reqData;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    return this.employeesRepo.findWithPagination<TEmployee>(
-      Number(data?.page),
-      Number(data?.pageSize),
+    return this.employeesRepo.findWithOptions<TEmployee>(
+      {},
+      { skip, sort: {}, limit: parseInt(limit) },
     );
   }
 

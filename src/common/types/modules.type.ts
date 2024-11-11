@@ -4,6 +4,7 @@ import { TRequest, TReqUrlData, TResponse } from './server.type';
 
 export type TControllerMethodResult<T = unknown> = {
   data: T;
+  total?: number;
   status: EHttpStatusCode;
   message: EMessageCode;
   mime_type?: keyof typeof MIME_TYPES;
@@ -34,6 +35,16 @@ export enum EEMPLOYEES_ACTIONS {
   UPDATE_BY_ID = 'PUT:/api/employees/:id',
   DELETE_BY_ID = 'DELETE:/api/employees/:id',
   OPTIONS_FIND_ALL = 'OPTIONS:/api/employees',
+}
+
+export enum ESUBSERVICE_ACTIONS {
+  CREATE = 'POST:/api/subservices',
+  FIND_ALL = 'GET:/api/subservices',
+  FIND_BY_ID = 'GET:/api/subservices/:id',
+  UPDATE_BY_ID = 'PUT:/api/subservices/:id',
+  DELETE_BY_ID = 'DELETE:/api/subservices/:id',
+  OPTIONS = 'OPTIONS:/api/subservices',
+  OPTIONS_BY_ID = 'OPTIONS:/api/subservices/:id',
 }
 
 export enum EUSER_ACTIONS {

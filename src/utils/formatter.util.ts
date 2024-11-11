@@ -1,7 +1,12 @@
 import { TApiResponse } from '@common/types';
 
 export class Formatter {
-  public formatResp<T>(result: any, time: number, message?: string) {
+  public formatResp<T>(
+    result: any,
+    time: number,
+    message?: string,
+    respTotal?: number,
+  ) {
     let numRecords = 0;
     let errors: string[] | null = null;
     let data = null;
@@ -16,9 +21,11 @@ export class Formatter {
       !(result instanceof Error)
     ) {
       data = result.items ?? result;
-      total = Array.isArray(result?.metadata)
-        ? result.metadata[0].totalCount
-        : 1;
+      total = respTotal
+        ? respTotal
+        : Array.isArray(result?.metadata)
+          ? result.metadata[0].totalCount
+          : 1;
       numRecords = result.items?.length ?? 1;
     } else if (result && result instanceof Error) {
       errors = [this.errorStringify(result)];

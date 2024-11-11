@@ -118,10 +118,10 @@ class EmployeesController implements IController {
     this.container.validate.validateReq(parsedReq, findAllEmployeesSchema);
 
     await this.container.validate.validateAuth(req, this.config.tokens);
-    const result = await this.employeesService.findAll(parsedReq.queryParams);
+    const result = await this.employeesService.findAll(parsedReq.queryParams!);
 
     return {
-      data: result,
+      data: result.data,
       status: EHttpStatusCode.OK,
       message: EMessageCode.OK,
     };
@@ -137,8 +137,6 @@ class EmployeesController implements IController {
       void,
       FindByIdEmployeeInput['params']
     >(req, reqMask);
-
-    console.log(2);
 
     const result = await this.employeesService.findById(parsedReq.reqParams);
 

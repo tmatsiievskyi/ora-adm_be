@@ -5,16 +5,17 @@ import { parse } from 'node:url';
 export class Common {
   public parseURL(url?: string, method?: string) {
     if (!url) return null;
-    const href = url.split('?')[0];
+    const decoded = decodeURI(url);
+    const href = decoded.split('?')[0];
     const [base, name, action] = href.substring(1).split('/');
 
     return {
-      parseUrl: parse(url, true),
+      parseUrl: parse(decoded, true),
       name,
       action,
       method,
       href,
-      url,
+      url: decoded,
       methodWithHref: `${method}:${href}`,
     };
   }
@@ -29,7 +30,9 @@ export class Common {
   }
 
   public getReqQueryParams<T>(req: TRequest) {
-    const paramsArr = req.url?.split('?')?.slice(1)[0]?.split('&');
+    if (!req.url) return null;
+    const decodedURI = decodeURI(req.url);
+    const paramsArr = decodedURI.split('?')?.slice(1)[0]?.split('&');
 
     if (!paramsArr || !paramsArr.length) return null;
 
@@ -77,8 +80,6 @@ export class Common {
   }
 
   public checkUrlToEnum(localUrl: string, reqUrl?: string) {
-    console.log(localUrl, reqUrl);
-
     if (!localUrl.includes('/:') && localUrl === reqUrl) {
       return true;
     }

@@ -1,10 +1,12 @@
-import { Types } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 
 export type TMongoDefault = {
   _id: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type TFilterQuery<T> = {} & FilterQuery<T>;
 
 export type TUser = {
   login: string;
@@ -35,3 +37,14 @@ export type TEmployee = {
   illness?: string[];
   achievements?: string[];
 } & TMongoDefault;
+
+export type TSubservice = {
+  label: string;
+  category: string;
+  subCategory: string;
+  outsource: boolean;
+  description: string;
+  price: number;
+  searchTags: string[];
+  index: number;
+};

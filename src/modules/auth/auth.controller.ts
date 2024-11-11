@@ -35,8 +35,6 @@ class AuthController implements IController {
   public async handleRequest(req: TRequest, res: TResponse) {
     const parsedUrl = this.container.common.parseURL(req.url, req.method);
 
-    console.log(parsedUrl);
-
     switch (true) {
       case this.container.common.checkUrlToEnum(
         EAUTH_ACTIONS.OPTIONS_SIGN_UP,
@@ -192,7 +190,6 @@ class AuthController implements IController {
     res: TResponse,
   ): Promise<TControllerMethodResult> {
     const cookieData = this.container.cookie.get(req.headers.cookie);
-    console.log(cookieData);
     const {
       data: { login },
     } = await this.container.validate.validateAuth(req, this.config.tokens);

@@ -1,34 +1,36 @@
 import {
   EHttpStatusCode,
   EMessageCode,
-  EUSER_ACTIONS,
+  ESUBSERVICE_ACTIONS,
   IController,
   TConfig,
   TContainer,
   TControllerMethodResult,
   TRequest,
-  TReqUrlData,
   TResponse,
 } from '@common/types';
-import { UserService } from './users.service';
+import { SubServiceService } from './subservices.service';
 import { NotFoundException } from '@common/exceptions';
+import { TFindAllSubservicesInput } from './subservices.schema';
 
-class UserController implements IController {
-  private userService: UserService;
+class SubserviceController implements IController {
+  private readonly subServiceService = new SubServiceService();
 
   constructor(
     private readonly container: TContainer,
     private readonly config: TConfig,
-  ) {
-    this.userService = new UserService(this.container);
-  }
+  ) {}
 
   public async handleRequest(req: TRequest, res: TResponse) {
     const parsedUrl = this.container.common.parseURL(req.url, req.method);
 
     switch (true) {
       case this.container.common.checkUrlToEnum(
-        EUSER_ACTIONS.OPTIONS_ME,
+        ESUBSERVICE_ACTIONS.OPTIONS,
+        parsedUrl?.methodWithHref,
+      ):
+      case this.container.common.checkUrlToEnum(
+        ESUBSERVICE_ACTIONS.OPTIONS_BY_ID,
         parsedUrl?.methodWithHref,
       ): {
         return {
@@ -37,11 +39,12 @@ class UserController implements IController {
           message: EMessageCode.OK,
         };
       }
+
       case this.container.common.checkUrlToEnum(
-        EUSER_ACTIONS.ME,
+        ESUBSERVICE_ACTIONS.FIND_ALL,
         parsedUrl?.methodWithHref,
       ): {
-        return await this.getMe(req, res);
+        return await this.hanleFindAll(req, res);
       }
 
       default:
@@ -49,25 +52,27 @@ class UserController implements IController {
     }
   }
 
-  private async getMe(
+  private async hanleFindAll(
     req: TRequest,
     res: TResponse,
   ): Promise<TControllerMethodResult> {
-    const cookieData = this.container.cookie.get(req.headers.cookie);
+    await this.container.validate.validateAuth(req, this.config.tokens);
 
-    const parsedToken = await this.container.validate.validateAuth(
-      req,
-      this.config.tokens,
-    );
+    const parsedReq = await this.container.common.parseReq<
+      void,
+      void,
+      TFindAllSubservicesInput['query']
+    >(req);
 
-    const userData = await this.userService.findOneById(parsedToken.data._id);
+    const result = await this.subServiceService.findAll(parsedReq.queryParams!);
 
     return {
-      data: userData,
+      data: result.data,
+      total: result.total,
       status: EHttpStatusCode.OK,
       message: EMessageCode.OK,
     };
   }
 }
 
-export default UserController;
+export default SubserviceController;

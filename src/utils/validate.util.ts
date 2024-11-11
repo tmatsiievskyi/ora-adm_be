@@ -50,8 +50,6 @@ export class Validate {
   public parseHeadersAuthToken(req: TRequest) {
     let foundedToken: string | null = null;
 
-    console.log(req.headers.authorization);
-
     if (req && req.headers && req.headers.authorization) {
       const parts = req.headers.authorization.split(' ');
       if (parts.length === 2) {

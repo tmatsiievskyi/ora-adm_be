@@ -51,6 +51,7 @@ export class HttpServer {
           result?.data,
           Date.now() - startTime,
           result?.message,
+          result?.total,
         ),
       );
     } catch (error) {

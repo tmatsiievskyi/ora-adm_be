@@ -1,6 +1,6 @@
 import { NotFoundException } from '@common/exceptions';
 import { Logger } from '@utils/logger.util';
-import { FilterQuery, Model, Types, UpdateQuery } from 'mongoose';
+import { FilterQuery, IfAny, Model, Types, UpdateQuery } from 'mongoose';
 
 export abstract class AbstractRepo<TDocument> {
   protected abstract readonly logger: Logger;
@@ -8,25 +8,25 @@ export abstract class AbstractRepo<TDocument> {
   constructor(protected readonly model: Model<TDocument>) {}
 
   async find(filterQuert: FilterQuery<TDocument>) {
-    const result = await this.model.find(filterQuert).lean<TDocument[]>(true);
-
-    if (!result.length) throw new NotFoundException();
-
-    return result;
+    return this.model.find(filterQuert).lean<TDocument[]>(true);
   }
 
-  async findWithPagination<TDocument = any>(
-    page: number,
-    pageSize: number,
-  ): Promise<TDocument[]> {
-    return this.model.aggregate([
-      {
-        $facet: {
-          metadata: [{ $count: 'totalCount' }],
-          items: [{ $skip: (page - 1) * pageSize }, { $limit: pageSize }],
-        },
-      },
-    ]);
+  async findWithOptions<TDocument = any>(
+    query: FilterQuery<TDocument>,
+    {
+      sort,
+      skip,
+      limit,
+    }: { sort: Record<string, 1 | -1>; skip: number; limit: number },
+  ) {
+    const data = await this.model
+      .find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit);
+    const total = await this.model.countDocuments(query);
+
+    return { data, total };
   }
 
   async findOne(filterQuery: FilterQuery<Omit<TDocument, '_id'>>) {

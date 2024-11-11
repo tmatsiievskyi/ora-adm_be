@@ -49,13 +49,9 @@ export const createEmployeeSchema = object({
 
 export const findAllEmployeesSchema = object({
   query: object({
-    page: string({
-      required_error: 'Page is required',
-    }).optional(),
-    pageSize: string({
-      required_error: 'Page size is required',
-    }).optional(),
-  }).nullable(),
+    page: string().optional(),
+    limit: string().optional(),
+  }),
 });
 
 export const findByIdEmployeeSchema = object({

@@ -5,6 +5,8 @@ import { TRequest, TReqUrlData, TResponse } from './server.type';
 export type TControllerMethodResult<T = unknown> = {
   data: T;
   total?: number;
+  currentPage?: number;
+  totalPages?: number;
   status: EHttpStatusCode;
   message: EMessageCode;
   mime_type?: keyof typeof MIME_TYPES;

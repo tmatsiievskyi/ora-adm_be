@@ -21,8 +21,8 @@ export abstract class AbstractRepo<TDocument> {
   ) {
     const data = await this.model
       .find(query)
-      .sort(sort)
       .skip(skip)
+      .sort(sort)
       .limit(limit);
     const total = await this.model.countDocuments(query);
 

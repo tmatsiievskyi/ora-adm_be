@@ -52,6 +52,8 @@ export class HttpServer {
           Date.now() - startTime,
           result?.message,
           result?.total,
+          result?.currentPage,
+          result?.totalPages,
         ),
       );
     } catch (error) {

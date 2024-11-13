@@ -69,6 +69,8 @@ class SubserviceController implements IController {
     return {
       data: result.data,
       total: result.total,
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
       status: EHttpStatusCode.OK,
       message: EMessageCode.OK,
     };

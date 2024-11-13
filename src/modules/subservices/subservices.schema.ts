@@ -6,7 +6,7 @@ export const findAllSubservicesSchema = object({
     page: string().optional(),
     limit: string().optional(),
     sortField: string().optional(),
-    sortOder: string().optional(),
+    sortOrder: string().optional(),
     lng: string().optional(),
   }),
 });

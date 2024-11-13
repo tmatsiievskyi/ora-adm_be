@@ -6,6 +6,8 @@ export class Formatter {
     time: number,
     message?: string,
     respTotal?: number,
+    currentPage?: number,
+    totalPages?: number,
   ) {
     let numRecords = 0;
     let errors: string[] | null = null;
@@ -42,6 +44,8 @@ export class Formatter {
         length: numRecords,
         took: time,
         total: total ? total : numRecords,
+        currentPage,
+        totalPages,
       },
     };
 

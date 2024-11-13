@@ -13,7 +13,7 @@ export class SubServiceService {
       page = '1',
       limit = '10',
       sortField = 'category',
-      sortOder = 'asc',
+      sortOrder = 'asc',
       lng = 'uk-UA',
     } = reqData;
 
@@ -42,8 +42,12 @@ export class SubServiceService {
     }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
-    const sortOrd = sortOder === 'asc' ? 1 : -1;
-    const sort: Record<any, any> = { category: 1, [sortField]: sortOrd };
+    const sortOrd = sortOrder === 'asc' ? 1 : -1;
+    const sort: Record<any, any> = {
+      category: 1,
+      [sortField]: sortOrd,
+      index: 1,
+    };
 
     const { data, total } = await this.subServiceRepo.findWithOptions(query, {
       sort,
@@ -63,6 +67,11 @@ export class SubServiceService {
       {} as Record<string, TSubservice[]>,
     );
 
-    return { data: groupedSubservices, total };
+    return {
+      data: groupedSubservices,
+      total,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(total / parseInt(limit)),
+    };
   }
 }

@@ -138,6 +138,8 @@ class EmployeesController implements IController {
       FindByIdEmployeeInput['params']
     >(req, reqMask);
 
+    console.log(parsedReq);
+
     const result = await this.employeesService.findById(parsedReq.reqParams);
 
     return {

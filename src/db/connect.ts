@@ -6,9 +6,12 @@ export const connectToDB = async (
   logger: TContainer['logger'],
 ) => {
   try {
-    await mongoose.connect(config.dbUrl + '/' + config.dbName);
+    await mongoose.connect(
+      `mongodb://${config.dbUser}:${config.dbPassword}@${config.dbHost}:27017/${config.dbName}`,
+    );
     logger.log('DB connected');
   } catch (error) {
+    console.log(error);
     logger.error('Could not connect to db');
     process.exit(1);
   }

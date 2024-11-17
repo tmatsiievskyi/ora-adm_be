@@ -131,6 +131,7 @@ export class HttpServer {
   }
 
   public async startServer() {
+    console.log(process.env.NODE_ENV, 111);
     await this.getModules();
     this.server = createServer(async (req: TRequest, res: TResponse) => {
       await this.handleRequest(req, res);

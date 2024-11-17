@@ -1,7 +1,9 @@
-import { TFilterQuery, TSubservice } from '@common/types';
+import { TFilterQuery, TLocal, TSubservice } from '@common/types';
 import { SubservoceRepo } from './subservices.repo';
 import { TFindAllSubservicesInput } from './subservices.schema';
 import { LocalizationRepo } from '../localization/localization.repo';
+import mongoose from 'mongoose';
+import { BadRequest } from '@common/exceptions';
 
 export class SubServiceService {
   private readonly subServiceRepo = new SubservoceRepo();
@@ -73,5 +75,60 @@ export class SubServiceService {
       currentPage: parseInt(page),
       totalPages: Math.ceil(total / parseInt(limit)),
     };
+  }
+
+  public async create(
+    data: Omit<TSubservice, '_id' | 'createdAt' | 'updatedAt'>,
+    localizations: TLocal[],
+  ) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const createdSubservice = this.subServiceRepo.create(data, session);
+
+      await this.localizationRepo.createMany(localizations, session);
+      await session.commitTransaction();
+      return createdSubservice;
+    } catch (error) {
+      console.log(111, error);
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  public async updateSubserviceById(
+    id: string,
+    // data: {subservice: Partial<TSubservice>, localization: TLocal[]},
+    data: any, //TODO: change
+    lng?: string,
+  ) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const updatedSubservice = await this.localizationRepo.findByIdAndUpdate(
+        id,
+        data,
+        session,
+      );
+
+      if (!updatedSubservice) {
+        session.abortTransaction();
+        return null;
+      }
+
+      //TODO: upda local
+
+      await session.commitTransaction();
+      return updatedSubservice;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 }

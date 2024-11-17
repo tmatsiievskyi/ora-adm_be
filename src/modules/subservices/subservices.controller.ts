@@ -10,8 +10,14 @@ import {
   TResponse,
 } from '@common/types';
 import { SubServiceService } from './subservices.service';
-import { NotFoundException } from '@common/exceptions';
-import { TFindAllSubservicesInput } from './subservices.schema';
+import { BadRequest, NotFoundException } from '@common/exceptions';
+import {
+  createSubserviceSchema,
+  TCreateSubserviceSchema,
+  TFindAllSubservicesInput,
+  TUpdateSubserviceById,
+  updateSubserviceByIdSchema,
+} from './subservices.schema';
 
 class SubserviceController implements IController {
   private readonly subServiceService = new SubServiceService();
@@ -47,6 +53,24 @@ class SubserviceController implements IController {
         return await this.hanleFindAll(req, res);
       }
 
+      case this.container.common.checkUrlToEnum(
+        ESUBSERVICE_ACTIONS.CREATE,
+        parsedUrl?.methodWithHref,
+      ): {
+        return await this.handleCreate(req, res);
+      }
+
+      case this.container.common.checkUrlToEnum(
+        ESUBSERVICE_ACTIONS.UPDATE_BY_ID,
+        parsedUrl?.methodWithHref,
+      ): {
+        return await this.handleUpdateById(
+          req,
+          res,
+          ESUBSERVICE_ACTIONS.UPDATE_BY_ID,
+        );
+      }
+
       default:
         throw new NotFoundException();
     }
@@ -71,6 +95,54 @@ class SubserviceController implements IController {
       total: result.total,
       currentPage: result.currentPage,
       totalPages: result.totalPages,
+      status: EHttpStatusCode.OK,
+      message: EMessageCode.OK,
+    };
+  }
+
+  private async handleCreate(req: TRequest, res: TResponse) {
+    const parsedReq =
+      await this.container.common.parseReq<TCreateSubserviceSchema['body']>(
+        req,
+      );
+
+    this.container.validate.validateReq(parsedReq, createSubserviceSchema);
+
+    const data = this.subServiceService.create(
+      parsedReq.body!.subservice,
+      parsedReq.body!.localizations,
+    );
+
+    return {
+      data,
+      status: EHttpStatusCode.CREATED,
+      message: EMessageCode.OK,
+    };
+  }
+
+  private async handleUpdateById(
+    req: TRequest,
+    res: TResponse,
+    reqMask?: string,
+  ) {
+    const parsedReq = await this.container.common.parseReq<
+      TUpdateSubserviceById['body'],
+      TUpdateSubserviceById['params']
+    >(req, reqMask);
+
+    console.log(parsedReq);
+
+    this.container.validate.validateReq(parsedReq, updateSubserviceByIdSchema);
+
+    const data = await this.subServiceService.updateSubserviceById(
+      parsedReq.reqParams!.id,
+      parsedReq.body!,
+    );
+
+    if (!data) throw new BadRequest();
+
+    return {
+      data,
       status: EHttpStatusCode.OK,
       message: EMessageCode.OK,
     };

@@ -1,0 +1,47 @@
+services:
+  service-be:
+    container_name: ora-adm_be
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      - service-db
+    networks:
+      - ora-adm-network
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+  service-db:
+    image: mongo:8.0
+    container_name: ora-adm_db
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - ora-adm_data:/data/db
+    env_file:
+      - .env
+    healthcheck:
+      test: ['CMD', 'mongo', '--eval', 'db.currentOp().inprog.length == 0']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ora-adm-network
+
+networks:
+  ora-adm-network:
+    driver: bridge
+
+volumes:
+  ora-adm_data:
+    driver: local

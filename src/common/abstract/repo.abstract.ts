@@ -1,6 +1,13 @@
 import { NotFoundException } from '@common/exceptions';
 import { Logger } from '@utils/logger.util';
-import { FilterQuery, IfAny, Model, Types, UpdateQuery } from 'mongoose';
+import {
+  ClientSession,
+  FilterQuery,
+  IfAny,
+  Model,
+  Types,
+  UpdateQuery,
+} from 'mongoose';
 
 export abstract class AbstractRepo<TDocument> {
   protected abstract readonly logger: Logger;
@@ -56,19 +63,25 @@ export abstract class AbstractRepo<TDocument> {
     return document;
   }
 
-  async create(document: Omit<TDocument, '_id' | 'createdAt' | 'updatedAt'>) {
+  async create(
+    document: Omit<TDocument, '_id' | 'createdAt' | 'updatedAt'>,
+    session?: ClientSession,
+  ) {
     const createdDoument = new this.model({
       ...document,
       _id: new Types.ObjectId(),
     });
 
-    return (await createdDoument.save()).toJSON() as unknown as TDocument;
+    return (
+      await createdDoument.save({ session })
+    ).toJSON() as unknown as TDocument;
   }
 
   async createMany(
     documents: Omit<TDocument, '_id' | 'createdAt' | 'updatedAt'>[],
+    session?: ClientSession,
   ) {
-    const data = await this.model.insertMany(documents);
+    return await this.model.insertMany(documents, { session });
   }
 
   async findOneAndDelete(filterQuery: FilterQuery<TDocument>) {
@@ -94,6 +107,32 @@ export abstract class AbstractRepo<TDocument> {
     }
 
     return document;
+  }
+
+  async findByIdAndUpdate(
+    id: string,
+    update: UpdateQuery<TDocument>,
+    session?: ClientSession,
+  ) {
+    const document = await this.model.findByIdAndUpdate(id, update, {
+      new: true,
+      session,
+    });
+
+    if (!document) {
+      this.logger.warn({}, `Document with id: ${id} was not updated`);
+
+      return null;
+    }
+
+    return document;
+  }
+
+  async findByIdAndDelete(id: string) {
+    const deletedDocument = await this.model.findByIdAndDelete(id);
+    if (!deletedDocument) return false;
+
+    return true;
   }
 
   async deleteMany(filterQuery: FilterQuery<TDocument>) {

@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "NODE_ENV=development tsc-watch --onSuccess \"node -r ts-node/register --env-file=.env.development ./src/index.ts\"",
+    "start:dev": "tsc-watch --onSuccess \"node -r ts-node/register ./src/index.ts\"",
     "lint": "eslint \"src/**/*.ts\"",
-    "dump:client": "node --env-file=.env.development ./scripts/dump_client.mjs",
-    "restore:local:dev": "node --env-file=.env.development ./scripts/restore_local.mjs dataFromClient/ORA --db=ORA"
+    "dump:client": "node --env-file=.env ./scripts/dump_client.mjs",
+    "restore:local:dev": "node --env-file=.env ./scripts/restore_local.mjs dataFromClient/ORA --db=ORA"
   },
   "keywords": [],
   "author": "",

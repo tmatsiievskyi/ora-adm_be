@@ -11,11 +11,11 @@ services:
       - .env
     volumes:
       - ./src:/app/src
-    # depends_on:
-    #   db:
-    #     condition: service_healthy
-    # networks:
-    #   - ora-adm-network
+    depends_on:
+      mongo1:
+        condition: service_healthy
+    networks:
+      - ora-adm-network
 
   mongo1:
     image: mongo:8.0
@@ -34,6 +34,8 @@ services:
     volumes:
       - 'mongo1_data:/data/db'
       - 'mongo1_config:/data/configdb'
+    networks:
+      - ora-adm-network
 
   mongo2:
     image: mongo:8.0
@@ -45,6 +47,8 @@ services:
     volumes:
       - 'mongo2_data:/data/db'
       - 'mongo2_config:/data/configdb'
+    networks:
+      - ora-adm-network
 
   mongo3:
     image: mongo:8.0
@@ -56,6 +60,8 @@ services:
     volumes:
       - 'mongo3_data:/data/db'
       - 'mongo3_config:/data/configdb'
+    networks:
+      - ora-adm-network
 
 volumes:
   mongo1_data:
@@ -64,3 +70,6 @@ volumes:
   mongo1_config:
   mongo2_config:
   mongo3_config:
+
+networks:
+  ora-adm-network:

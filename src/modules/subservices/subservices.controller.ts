@@ -113,6 +113,8 @@ class SubserviceController implements IController {
       parsedReq.body!.localizations,
     );
 
+    console.log(data);
+
     return {
       data,
       status: EHttpStatusCode.CREATED,

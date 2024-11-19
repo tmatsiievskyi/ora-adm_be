@@ -1,13 +1,13 @@
-FROM node:22-alpine3.19
+FROM node:20.10.0-slim AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable
 
 WORKDIR /app
 
-COPY package.json ./
-COPY pnpm-lock.yaml ./
-
-RUN npm install -g pnpm
-RUN pnpm install
-
 COPY . .
+RUN pnpm install --frozen-lockfile
 
 CMD ["pnpm", "run", "start:dev"]

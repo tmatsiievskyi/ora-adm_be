@@ -91,11 +91,10 @@ export abstract class AbstractRepo<TDocument> {
   async findOneAndUpdate(
     filterQuery: FilterQuery<TDocument>,
     update: UpdateQuery<TDocument>,
+    options?: Record<string, any>,
   ) {
     const document = await this.model
-      .findOneAndUpdate(filterQuery, update, {
-        new: true,
-      })
+      .findOneAndUpdate(filterQuery, update, options)
       .lean<TDocument>(true);
 
     if (!document) {
@@ -128,14 +127,17 @@ export abstract class AbstractRepo<TDocument> {
     return document;
   }
 
-  async findByIdAndDelete(id: string) {
-    const deletedDocument = await this.model.findByIdAndDelete(id);
+  async findByIdAndDelete(id: string, session?: ClientSession) {
+    const deletedDocument = await this.model.findByIdAndDelete(id, { session });
     if (!deletedDocument) return false;
 
-    return true;
+    return deletedDocument;
   }
 
-  async deleteMany(filterQuery: FilterQuery<TDocument>) {
-    return await this.model.deleteMany(filterQuery);
+  async deleteMany(
+    filterQuery: FilterQuery<TDocument>,
+    session?: ClientSession,
+  ) {
+    return await this.model.deleteMany(filterQuery, { session });
   }
 }

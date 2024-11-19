@@ -1,4 +1,5 @@
 import {
+  EEMPLOYEES_ACTIONS,
   EHttpStatusCode,
   EMessageCode,
   ESUBSERVICE_ACTIONS,
@@ -13,10 +14,16 @@ import { SubServiceService } from './subservices.service';
 import { BadRequest, NotFoundException } from '@common/exceptions';
 import {
   createSubserviceSchema,
+  deleteSubserviceByIdSchema,
+  findSubserviceByIdSchema,
   TCreateSubserviceSchema,
+  TDeleteSubserviceById,
   TFindAllSubservicesInput,
+  TFindByIdSubserviceInput,
   TUpdateSubserviceById,
+  TUpdateSubservicePriceById,
   updateSubserviceByIdSchema,
+  updateSubservicePriceByIdSchema,
 } from './subservices.schema';
 
 class SubserviceController implements IController {
@@ -33,6 +40,10 @@ class SubserviceController implements IController {
     switch (true) {
       case this.container.common.checkUrlToEnum(
         ESUBSERVICE_ACTIONS.OPTIONS,
+        parsedUrl?.methodWithHref,
+      ):
+      case this.container.common.checkUrlToEnum(
+        ESUBSERVICE_ACTIONS.OPTIONS_PRICE_BY_ID,
         parsedUrl?.methodWithHref,
       ):
       case this.container.common.checkUrlToEnum(
@@ -61,6 +72,17 @@ class SubserviceController implements IController {
       }
 
       case this.container.common.checkUrlToEnum(
+        ESUBSERVICE_ACTIONS.FIND_BY_ID,
+        parsedUrl?.methodWithHref,
+      ): {
+        return await this.handleFindById(
+          req,
+          res,
+          ESUBSERVICE_ACTIONS.FIND_BY_ID,
+        );
+      }
+
+      case this.container.common.checkUrlToEnum(
         ESUBSERVICE_ACTIONS.UPDATE_BY_ID,
         parsedUrl?.methodWithHref,
       ): {
@@ -68,6 +90,28 @@ class SubserviceController implements IController {
           req,
           res,
           ESUBSERVICE_ACTIONS.UPDATE_BY_ID,
+        );
+      }
+
+      case this.container.common.checkUrlToEnum(
+        ESUBSERVICE_ACTIONS.UPDATE_PRICE_BY_ID,
+        parsedUrl?.methodWithHref,
+      ): {
+        return await this.handleUpdatePriceById(
+          req,
+          res,
+          ESUBSERVICE_ACTIONS.UPDATE_BY_ID,
+        );
+      }
+
+      case this.container.common.checkUrlToEnum(
+        ESUBSERVICE_ACTIONS.DELETE_BY_ID,
+        parsedUrl?.methodWithHref,
+      ): {
+        return await this.handleDeleteById(
+          req,
+          res,
+          EEMPLOYEES_ACTIONS.DELETE_BY_ID,
         );
       }
 
@@ -100,6 +144,33 @@ class SubserviceController implements IController {
     };
   }
 
+  private async handleFindById(
+    req: TRequest,
+    res: TResponse,
+    reqMask?: string,
+  ) {
+    const parsedReq = await this.container.common.parseReq<
+      void,
+      TFindByIdSubserviceInput['params']
+    >(req, reqMask);
+
+    this.container.validate.validateReq(parsedReq, findSubserviceByIdSchema);
+
+    const data = await this.subServiceService.findSubserviceById(
+      parsedReq.reqParams!.id,
+    );
+
+    if (!data) {
+      throw new NotFoundException();
+    }
+
+    return {
+      data,
+      status: EHttpStatusCode.OK,
+      message: EMessageCode.OK,
+    };
+  }
+
   private async handleCreate(req: TRequest, res: TResponse) {
     const parsedReq =
       await this.container.common.parseReq<TCreateSubserviceSchema['body']>(
@@ -108,12 +179,10 @@ class SubserviceController implements IController {
 
     this.container.validate.validateReq(parsedReq, createSubserviceSchema);
 
-    const data = this.subServiceService.create(
+    const data = await this.subServiceService.create(
       parsedReq.body!.subservice,
-      parsedReq.body!.localizations,
+      parsedReq.body!.localization,
     );
-
-    console.log(data);
 
     return {
       data,
@@ -132,8 +201,6 @@ class SubserviceController implements IController {
       TUpdateSubserviceById['params']
     >(req, reqMask);
 
-    console.log(parsedReq);
-
     this.container.validate.validateReq(parsedReq, updateSubserviceByIdSchema);
 
     const data = await this.subServiceService.updateSubserviceById(
@@ -142,6 +209,60 @@ class SubserviceController implements IController {
     );
 
     if (!data) throw new BadRequest();
+
+    return {
+      data,
+      status: EHttpStatusCode.OK,
+      message: EMessageCode.OK,
+    };
+  }
+
+  private async handleUpdatePriceById(
+    req: TRequest,
+    res: TResponse,
+    reqMask?: string,
+  ) {
+    const parsedReq = await this.container.common.parseReq<
+      TUpdateSubservicePriceById['body'],
+      TUpdateSubservicePriceById['params']
+    >(req, reqMask);
+
+    this.container.validate.validateReq(
+      parsedReq,
+      updateSubservicePriceByIdSchema,
+    );
+
+    const data = await this.subServiceService.updateSubservicePrice(
+      parsedReq.reqParams!.id,
+      parsedReq.body!.price,
+    );
+
+    return {
+      data,
+      status: EHttpStatusCode.OK,
+      message: EMessageCode.OK,
+    };
+  }
+
+  private async handleDeleteById(
+    req: TRequest,
+    res: TResponse,
+    reqMask?: string,
+  ) {
+    const parsedReq = await this.container.common.parseReq<
+      void,
+      TDeleteSubserviceById['params']
+    >(req, reqMask);
+
+    this.container.validate.validateReq(parsedReq, deleteSubserviceByIdSchema);
+
+    const data = await this.subServiceService.deleteSubservice(
+      parsedReq.reqParams!.id,
+    );
+
+    if (!data) {
+      throw new NotFoundException();
+    }
 
     return {
       data,

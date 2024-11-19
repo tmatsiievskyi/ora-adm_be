@@ -5,17 +5,12 @@ export const connectToDB = async (
   config: TConfig['db'],
   logger: TContainer['logger'],
 ) => {
-  // const mongoURI = `mongodb://${config.dbUser}:${config.dbPassword}@${config.dbHost}:27017/${config.dbName}`;
+  const mongoURI = `mongodb://${config.dbHost}`;
 
-  const mongoURI = `mongodb://taras:030922@db:27017`;
-
-  console.log(mongoURI, 1112);
   try {
     await mongoose.connect(mongoURI, {
       replicaSet: 'rs0',
-      autoIndex: true,
-      autoCreate: true,
-      dbName: 'ORA',
+      dbName: `${config.dbName}`,
     });
     logger.log('DB connected');
   } catch (error) {

@@ -79,19 +79,17 @@ export class SubServiceService {
 
   public async create(
     data: Omit<TSubservice, '_id' | 'createdAt' | 'updatedAt'>,
-    localizations: TLocal[],
+    localization: TLocal[],
   ) {
     const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
       const createdSubservice = this.subServiceRepo.create(data, session);
-
-      await this.localizationRepo.createMany(localizations, session);
+      await this.localizationRepo.createMany(localization, session);
       await session.commitTransaction();
       return createdSubservice;
     } catch (error) {
-      console.log(111, error);
       await session.abortTransaction();
       throw error;
     } finally {
@@ -101,8 +99,7 @@ export class SubServiceService {
 
   public async updateSubserviceById(
     id: string,
-    // data: {subservice: Partial<TSubservice>, localization: TLocal[]},
-    data: any, //TODO: change
+    data: { subservice: Partial<TSubservice>; localization: TLocal[] },
     lng?: string,
   ) {
     const session = await mongoose.startSession();
@@ -120,7 +117,13 @@ export class SubServiceService {
         return null;
       }
 
-      //TODO: upda local
+      for (const local of data.localization) {
+        await this.localizationRepo.findOneAndUpdate(
+          { key: local.key, lng: local.lng },
+          { $set: { value: local.value } },
+          { upsert: true, session },
+        );
+      }
 
       await session.commitTransaction();
       return updatedSubservice;
@@ -130,5 +133,48 @@ export class SubServiceService {
     } finally {
       session.endSession();
     }
+  }
+
+  public async updateSubservicePrice(id: string, price: number) {
+    return await this.subServiceRepo.findByIdAndUpdate(id, { price });
+  }
+
+  public async deleteSubservice(id: string) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const deletedSubservice = await this.subServiceRepo.findByIdAndDelete(
+        id,
+        session,
+      );
+
+      if (!deletedSubservice) {
+        await session.abortTransaction();
+        return false;
+      }
+
+      await this.localizationRepo.deleteMany(
+        {
+          key: { $in: [deletedSubservice.label] },
+        },
+        session,
+      );
+
+      await session.commitTransaction();
+      return deletedSubservice;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  public async findSubserviceById(id: string) {
+    const subservice = await this.subServiceRepo.findById(id);
+
+    if (!subservice) return false;
+    return subservice;
   }
 }

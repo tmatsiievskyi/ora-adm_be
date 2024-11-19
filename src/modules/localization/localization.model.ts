@@ -7,6 +7,7 @@ export const LocalizationSchema = new Schema<TLocal>({
   value: { type: String, required: true },
 });
 
+LocalizationSchema.index({ key: 1, lng: 1 }, { unique: true });
 const LocalizationModel = model<TLocal>('Localization', LocalizationSchema);
 
 export default LocalizationModel;

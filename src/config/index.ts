@@ -5,7 +5,10 @@ export const config = {
   },
   db: {
     dbUrl: process.env.DB_URL as string,
-    dbName: process.env.DB_NAME as string,
+    dbUser: process.env.MONGO_INITDB_ROOT_USERNAME as string,
+    dbPassword: process.env.MONGO_INITDB_ROOT_PASSWORD as string,
+    dbHost: process.env.MONGO_HOST as string,
+    dbName: process.env.MONGO_INITDB_DATABASE as string,
   },
   tokens: {
     access: {

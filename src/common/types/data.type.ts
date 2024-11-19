@@ -41,10 +41,10 @@ export type TEmployee = {
 export type TSubservice = {
   label: string;
   category: string;
-  subCategory: string;
+  subCategory?: string;
   outsource: boolean;
-  description: string;
+  description?: string;
   price: number;
-  searchTags: string[];
-  index: number;
-};
+  searchTags?: string[]; //TODO: remove
+  index?: number;
+} & TMongoDefault; // TODO: remove ?

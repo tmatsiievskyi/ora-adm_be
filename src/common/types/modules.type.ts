@@ -44,9 +44,11 @@ export enum ESUBSERVICE_ACTIONS {
   FIND_ALL = 'GET:/api/subservices',
   FIND_BY_ID = 'GET:/api/subservices/:id',
   UPDATE_BY_ID = 'PUT:/api/subservices/:id',
+  UPDATE_PRICE_BY_ID = 'PUT:/api/subservices/:id/price',
   DELETE_BY_ID = 'DELETE:/api/subservices/:id',
   OPTIONS = 'OPTIONS:/api/subservices',
   OPTIONS_BY_ID = 'OPTIONS:/api/subservices/:id',
+  OPTIONS_PRICE_BY_ID = 'OPTIONS:/api/subservices/:id/price',
 }
 
 export enum EUSER_ACTIONS {

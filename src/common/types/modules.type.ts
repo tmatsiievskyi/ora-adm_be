@@ -51,6 +51,16 @@ export enum ESUBSERVICE_ACTIONS {
   OPTIONS_PRICE_BY_ID = 'OPTIONS:/api/subservices/:id/price',
 }
 
+export enum ESERVICE_ACTION {
+  CREATE = 'POST:/api/services',
+  FIND_ALL = 'GET:/api/services',
+  FIND_BY_ID = 'GET:/api/services/:id',
+  UPDATE_BY_ID = 'PUT:/api/services/:id',
+  DELETE_BY_ID = 'DELETE:/api/services/:id',
+  OPTIONS = 'OPTIONS:/api/services',
+  OPTIONS_BY_ID = 'OPTIONS:/api/services/:id',
+}
+
 export enum EUSER_ACTIONS {
   ME = 'GET:/api/users/me',
   OPTIONS_ME = 'OPTIONS:/api/users/me',

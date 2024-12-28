@@ -1,12 +1,12 @@
 import { TFilterQuery, TLocal, TSubservice } from '@common/types';
-import { SubservoceRepo } from './subservices.repo';
+import { SubserviceRepo } from './subservices.repo';
 import { TFindAllSubservicesInput } from './subservices.schema';
 import { LocalizationRepo } from '../localization/localization.repo';
 import mongoose from 'mongoose';
 import { BadRequest } from '@common/exceptions';
 
 export class SubServiceService {
-  private readonly subServiceRepo = new SubservoceRepo();
+  private readonly subServiceRepo = new SubserviceRepo();
   private readonly localizationRepo = new LocalizationRepo();
 
   public async findAll(reqData: TFindAllSubservicesInput['query']) {
@@ -14,16 +14,16 @@ export class SubServiceService {
       search,
       page = '1',
       limit = '10',
-      sortField = 'category',
+      sortField = 'serviceName',
       sortOrder = 'asc',
       lng = 'uk-UA',
     } = reqData;
 
     let query: TFilterQuery<TSubservice> = {
       $nor: [
-        { category: 'сonsultations' },
-        { category: 'analyses' },
-        { category: 'examination' },
+        { service: 'сonsultations' },
+        { service: 'analyses' },
+        { service: 'examination' },
       ],
     };
     if (search) {
@@ -37,7 +37,7 @@ export class SubServiceService {
         ...query,
         $or: [
           { label: { $in: keys } },
-          { category: { $in: keys } },
+          { service: { $in: keys } },
           { searchTags: { $in: keys } },
         ],
       };
@@ -46,7 +46,7 @@ export class SubServiceService {
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const sortOrd = sortOrder === 'asc' ? 1 : -1;
     const sort: Record<any, any> = {
-      category: 1,
+      serviceName: 1,
       [sortField]: sortOrd,
       index: 1,
     };
@@ -57,11 +57,13 @@ export class SubServiceService {
       limit: parseInt(limit),
     });
 
-    const categoryKeys = [...new Set(data.map((subs) => subs.category))];
+    const Keys = [
+      ...new Set(data.map((subs: TSubservice) => subs.serviceName)),
+    ];
     const groupedSubservices = categoryKeys.reduce(
       (acc, category) => {
         const categorySubservices = data.filter(
-          (item) => item.category === category,
+          (item) => item.subService === category,
         );
         acc[category] = categorySubservices;
         return acc;

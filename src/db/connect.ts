@@ -1,5 +1,5 @@
 import { TConfig, TContainer } from '@common/types';
-import mongoose, { ConnectOptions } from 'mongoose';
+import mongoose from 'mongoose';
 
 export const connectToDB = async (
   config: TConfig['db'],

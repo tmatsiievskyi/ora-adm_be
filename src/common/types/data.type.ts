@@ -40,11 +40,29 @@ export type TEmployee = {
 
 export type TSubservice = {
   label: string;
-  category: string;
+  category?: string;
+  service?: Types.ObjectId | string;
+  serviceName?: string;
   subCategory?: string;
   outsource: boolean;
   description?: string;
   price: number;
+  pricePrefix?: string;
+  priceSuffix?: string;
+  archived?: boolean;
   searchTags?: string[]; //TODO: remove
   index?: number;
 } & TMongoDefault; // TODO: remove ?
+
+export type TService = {
+  name: string;
+  label: string;
+  description: string;
+  shortDescription?: string;
+  imgUrl: string;
+  employee: Types.ObjectId[];
+  subService: Types.ObjectId[];
+  subServices: Types.ObjectId[];
+  mainItems?: string;
+  index: number;
+} & TMongoDefault;

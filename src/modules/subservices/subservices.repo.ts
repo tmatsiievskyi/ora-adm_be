@@ -3,7 +3,7 @@ import { TSubservice } from '@common/types';
 import { Logger } from '@utils/logger.util';
 import SubserviceModel from './subservices.model';
 
-export class SubservoceRepo extends AbstractRepo<TSubservice> {
+export class SubserviceRepo extends AbstractRepo<TSubservice> {
   protected readonly logger: Logger = new Logger();
 
   constructor() {

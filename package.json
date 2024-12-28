@@ -8,7 +8,11 @@
     "start:dev": "tsc-watch --onSuccess \"node -r ts-node/register ./src/index.ts\"",
     "lint": "eslint \"src/**/*.ts\"",
     "dump:client": "node --env-file=.env ./scripts/dump_client.mjs",
-    "restore:local:dev": "node --env-file=.env ./scripts/restore_local.mjs dataFromClient/ORA --db=ORA"
+    "restore:local:dev": "node --env-file=.env ./scripts/restore_local.mjs dataFromClient/ORA --db=ORA",
+    "migrate:create": "migrate create --template-file ./src/migrations-util/template.ts --migrations-dir=\"./src/migrations\" --compiler=\"ts:./src/migrations-util/ts-compiler.ts\" --env-file=.env ",
+    "migrate:up": "migrate --migrations-dir=\"./src/migrations\" --compiler=\"ts:./src/migrations-util/ts-compiler.ts\" up",
+    "migrate:down": "migrate --migrations-dir=\"./src/migrations\" --compiler=\"ts:./src/migrations-util/ts-compiler.ts\" down",
+    "mig:run": "node -r ts-node/register ./src/migrations/$FILE"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +29,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-typescript-sort-keys": "^3.2.0",
     "globals": "^15.9.0",
+    "migrate": "^2.1.0",
     "pino-pretty": "^11.2.2",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",

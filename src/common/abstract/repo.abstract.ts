@@ -140,4 +140,28 @@ export abstract class AbstractRepo<TDocument> {
   ) {
     return await this.model.deleteMany(filterQuery, { session });
   }
+
+  async updateMany(
+    filterQuery: FilterQuery<TDocument>,
+    update: UpdateQuery<TDocument>,
+    session?: ClientSession,
+  ) {
+    const result = await this.model.updateMany(filterQuery, update, {
+      session,
+    });
+
+    if (result.matchedCount === 0) {
+      this.logger.warn(
+        {},
+        `No documents matched the filter query: ${JSON.stringify(filterQuery)}`,
+      );
+      throw new NotFoundException('No documents found to update');
+    }
+
+    this.logger.log(
+      `Updated ${result.modifiedCount} documents matching the filter query: ${JSON.stringify(filterQuery)}`,
+    );
+
+    return result.modifiedCount;
+  }
 }
